@@ -2,11 +2,13 @@
 
 Automate TV guides to XMLTV format. Easy to use, up-to-date. See below for getting started.
 
-I also *somewhat* maintain a version of the original in the [historical-perl branch](https://github.com/jesmannstl/zap2xml/tree/historical-perl) if you're interested in that.
+> **A note on this fork:** This project was originally created and lovingly developed by Jesse Mann ([@jesmannstl](https://github.com/jesmannstl)). I'm maintaining this fork for my own use and will do my best to keep it alive and honor what Jesse built. Thank you, Jesse, for everything you created.
 
-## First Time [Installation in node.js](https://github.com/jesmannstl/zap2xml/wiki/Installation), [How to Run](https://github.com/jesmannstl/zap2xml/wiki/How-to-Run), [Scheduling](https://github.com/jesmannstl/zap2xml/wiki/Scheduling) or [using Docker](https://github.com/jesmannstl/zap2xml/wiki/Using-Docker) see [Wiki](https://github.com/jesmannstl/zap2xml/wiki) for instructions 
+A version of the original Perl implementation is preserved in the [historical-perl branch](https://github.com/jesmannstl/zap2xml/tree/historical-perl) if you're interested in that.
 
-### Need help? [Finding a lineup](https://github.com/jesmannstl/zap2xml/wiki/Finding-a-Lineup-ID) or for [Dish and DirecTV lineups](https://github.com/jesmannstl/zap2xml/wiki/US-Dish-Directv-Lineups).  Other help? Drop a line in the [Discussions](https://github.com/jesmannstl/zap2xml/discussions)
+## First Time [Installation in node.js](https://github.com/JCBird1012/zap2xml/wiki/Installation), [How to Run](https://github.com/JCBird1012/zap2xml/wiki/How-to-Run), [Scheduling](https://github.com/JCBird1012/zap2xml/wiki/Scheduling) or [using Docker](https://github.com/JCBird1012/zap2xml/wiki/Using-Docker) see [Wiki](https://github.com/JCBird1012/zap2xml/wiki) for instructions
+
+### Need help? [Finding a lineup](https://github.com/JCBird1012/zap2xml/wiki/Finding-a-Lineup-ID) or for [Dish and DirecTV lineups](https://github.com/JCBird1012/zap2xml/wiki/US-Dish-Directv-Lineups).  Other help? Drop a line in the [Discussions](https://github.com/JCBird1012/zap2xml/discussions)
 
 # Recent updates
 
@@ -58,6 +60,3 @@ These changes are currently on the [jesmannstl/zap2xml](https://github.com/jesma
 * Updated affiliateId after orbebb stopped working
 
 Updated Docker with these changes use APPEND_ASTERISK: TRUE for the --appendAsterisk option
-
-
-
