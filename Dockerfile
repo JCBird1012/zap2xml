@@ -1,22 +1,22 @@
-FROM node:22.17.1-alpine3.22
+FROM oven/bun:alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package.json
-COPY package-lock.json package-lock.json
+COPY package.json bun.lock ./
+RUN bun install --frozen-lockfile
 
-RUN npm ci
-
-COPY tsconfig.json tsconfig.json
-COPY rollup.config.ts rollup.config.ts
-COPY entrypoint.sh entrypoint.sh
+COPY tsconfig.json rollup.config.ts ./
 COPY src/ src/
 
-# Fix line endings for the entrypoint script and make it executable
-RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
+RUN bun run build
 
-RUN npm run build
+# --- Runtime ---
+FROM oven/bun:alpine
 
-RUN ls -l /app
+WORKDIR /app
+
+COPY --from=builder /app/dist/ dist/
+COPY entrypoint.sh ./
+RUN chmod +x /app/entrypoint.sh
 
 ENTRYPOINT ["/app/entrypoint.sh"]

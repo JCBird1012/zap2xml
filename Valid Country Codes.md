@@ -1,7 +1,5 @@
 # **Valid Country Codes**
 
-
-
 | Code | Country                      | Postal Code Format  |
 | ---- | ---------------------------- | ------------------- |
 | USA  | United States                | 78701               |
@@ -41,9 +39,6 @@
 | TTO  | Trinidad and Tobago          | TT (Only Code)      |
 | TCA  | Turks and Caicos             | TKCA1ZZ (Only Code) |
 
-Still need the lineup unless OTA working on possibly getting a database of lineups in the future
+Still need the lineup unless OTA working on possibly getting a database of lineups in the future.
 
-
-
-Unfortunately Gracenote supported lineups in Europe are unavailable 
-
+Unfortunately Gracenote supported lineups in Europe are unavailable.
