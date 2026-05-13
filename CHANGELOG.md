@@ -45,6 +45,13 @@ These changes are currently on the [jesmannstl/zap2xml](https://github.com/jesma
 
 
 
+## [2.2.2](https://github.com/JCBird1012/zap2xml/compare/v2.2.1...v2.2.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* links + add message about jessmanstl ([45384a6](https://github.com/JCBird1012/zap2xml/commit/45384a6f94810b88ac56aa89177658279157ea47))
+
 ## [2.2.1](https://github.com/jesmannstl/zap2xml/compare/v2.2.0...v2.2.1) (2025-08-10)
 
 
