@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Build service
         run: docker build .
@@ -21,27 +21,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: package.json
-          cache: npm
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       - name: Lint
-        run: npm run lint
+        run: bun run lint
 
       - name: Integration tests
         run: |
-          node dist/index.js --lineupId=USA-DITV751-X --timespan=3 --postalCode=80020 --outputFile=dtv.xml
-          node dist/index.js --lineupId=USA-OTA80020 --timespan=3 --postalCode=80020 --outputFile=ota.xml
+          bun dist/index.js --lineupId=USA-DITV751-X --timespan=3 --postalCode=80020 --outputFile=dtv.xml
+          bun dist/index.js --lineupId=USA-OTA80020 --timespan=3 --postalCode=80020 --outputFile=ota.xml
 
           # Error if they are the same
           if cmp -s dtv.xml ota.xml; then

@@ -9,12 +9,15 @@ jobs:
   build-tag-release:
     name: Build, tag, and release Docker image
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup release please
-        uses: googleapis/release-please-action@v3
+        uses: googleapis/release-please-action@v5
         id: release
         with:
           release-type: node
