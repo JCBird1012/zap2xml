@@ -2,39 +2,37 @@ name: Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 
 jobs:
   build-tag-release:
-    name: Build, tag, and release Docker image
+    name: Build and release Docker image
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Setup release please
-        uses: googleapis/release-please-action@v5
-        id: release
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          release-type: node
-          skip-github-pull-request: true
-      - name: Login into GitHub Container Registry
-        if: ${{ steps.release.outputs.release_created }}
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build Docker image
-        if: ${{ steps.release.outputs.release_created }}
-        run: |
-          docker build \
-          -t "ghcr.io/${GITHUB_REPOSITORY}:${{ steps.release.outputs.tag_name }}" \
-          -t "ghcr.io/${GITHUB_REPOSITORY}:latest" .
-
-      - name: Release Docker image
-        if: ${{ steps.release.outputs.release_created }}
-        run: |
-          docker push "ghcr.io/${GITHUB_REPOSITORY}:${{ steps.release.outputs.tag_name }}"
-          docker push "ghcr.io/${GITHUB_REPOSITORY}:latest"
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/zap2xml:${{ github.ref_name }}
+            ghcr.io/${{ github.repository_owner }}/zap2xml:latest
