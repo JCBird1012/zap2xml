@@ -21,6 +21,7 @@ jobs:
         id: release
         with:
           release-type: node
+          skip-github-pull-request: true
       - name: Login into GitHub Container Registry
         if: ${{ steps.release.outputs.release_created }}
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
