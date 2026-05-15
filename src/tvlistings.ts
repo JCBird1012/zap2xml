@@ -1,6 +1,4 @@
-import { getConfig } from "./config.js";
-
-const config = getConfig();
+import type { ListingConfig } from "./config.js";
 
 export interface Program {
   title: string;
@@ -50,7 +48,7 @@ export interface GridApiResponse {
   channels: Channel[];
 }
 
-function buildUrl(time: number, timespan: number): string {
+function buildUrl(config: ListingConfig, time: number, timespan: number): string {
   // Build query string in a fixed order; timezone is intentionally left blank.
   const orderedParams: Array<[string, string]> = [
     ["lineupId", config.lineupId],
@@ -75,7 +73,7 @@ function buildUrl(time: number, timespan: number): string {
   return `${config.baseUrl}?${query}`;
 }
 
-export async function getTVListings(): Promise<GridApiResponse> {
+export async function getTVListings(config: ListingConfig): Promise<GridApiResponse> {
   const totalHours = parseInt(config.timespan, 10);
   const chunkHours = 6;
   const now = Math.floor(Date.now() / 1000);
@@ -87,7 +85,7 @@ export async function getTVListings(): Promise<GridApiResponse> {
 
   for (let offset = 0; offset < totalHours; offset += chunkHours) {
     const time = now + offset * 3600;
-    const url = buildUrl(time, chunkHours);
+    const url = buildUrl(config, time, chunkHours);
 
     console.log(`Fetching chunk ${offset / chunkHours + 1}/${Math.ceil(totalHours / chunkHours)}: ${url}`);
 
@@ -124,9 +122,9 @@ export async function getTVListings(): Promise<GridApiResponse> {
             const isMovie = newProgram.id?.startsWith('MV');
 
             if (currentGenres.size === 0 && !isMovie) {
-                if (newProgram.seriesId && newProgram.seriesId !== '0') {
-                    currentGenres.add('series');
-                }
+              if (newProgram.seriesId && newProgram.seriesId !== '0') {
+                currentGenres.add('series');
+              }
             }
 
             newProgram.genres = Array.from(currentGenres);

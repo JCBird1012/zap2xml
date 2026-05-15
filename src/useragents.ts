@@ -9,4 +9,4 @@ const userAgents = [
 ];
 
 export const UserAgent =
-  userAgents[Math.floor(Math.random() * userAgents.length)];
+  userAgents[Math.floor(Math.random() * userAgents.length)]!;

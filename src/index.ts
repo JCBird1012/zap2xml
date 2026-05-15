@@ -3,22 +3,30 @@ import { getTVListings } from "./tvlistings.js";
 import { buildXmltv } from "./xmltv.js";
 import { getConfig } from "./config.js";
 
-const config = getConfig();
-
 function isHelp() {
   if (process.argv.includes("--help")) {
     console.log(`
 Usage: node dist/index.js [options]
 
 Options:
---help           Show this help message
---lineupId=ID    Lineup ID (default: USA-lineupId-DEFAULT)
---timespan=NUM   Timespan in hours (up to 360 = 15 days, default: 6)
---pref=LIST      User preferences, comma separated. Can be m, p, and h (default: empty)'
---country=CON    Country code (default: USA)
---postalCode=ZIP Postal code (default: 30309)
---userAgent=UA   Custom user agent string (default: Uses random if not specified)
---timezone=TZ    Timezone (default: America/New_York)
+--help             Show this help message
+--config=FILE      YAML config file for one or more listings
+--lineupId=ID      Lineup ID (default: COUNTRY-lineupId-DEFAULT)
+--timespan=NUM     Timespan in hours (up to 360 = 15 days, default: 72)
+--pref=LIST        User preferences, comma separated. Can be m, p, and h
+--country=CON      Country code (default: USA)
+--postalCode=ZIP   Postal code (default: -)
+--userAgent=UA     Custom user agent string (default: random from bundled list)
+--timezone=TZ      Timezone (default: America/New_York)
+--outputFile=FILE  Output file name for single-listing mode (default: xmltv.xml)
+--appendAsterisk   Append * to titles with <new /> or <live />
+--mediaportal      Prioritize xmltv_ns episode-num tags
+--nextpvr          Move "channelNo callsign" display-name to first position
+--stationid        Sort channels by station ID (legacy behavior)
+--sortname         Sort channels alphabetically by call sign/name
+
+When using --config, keep lineupId, country, postalCode, and outputFile in YAML.
+Global flags like timespan, userAgent, and XML output flags still override every listing.
 `);
     process.exit(0);
   }
@@ -27,20 +35,32 @@ Options:
 async function main() {
   try {
     isHelp();
+    const runtimeConfig = getConfig();
 
-    console.log("Building XMLTV file");
-    console.log(`Config: Country=${config.country}, PostalCode=${config.postalCode}, OutputFile=${config.outputFile}`);
-    
-    console.log("Fetching TV listings...");
-    const data = await getTVListings();
-    console.log(`Successfully fetched ${data.channels.length} channels`);
-    
-    console.log("Building XMLTV content...");
-    const xml = buildXmltv(data);
-    
-    console.log(`Writing XMLTV to ${config.outputFile}...`);
-    writeFileSync(config.outputFile, xml, { encoding: "utf-8" });
-    console.log("XMLTV file created successfully!");
+    if (runtimeConfig.configFile) {
+      console.log(`Loaded config file: ${runtimeConfig.configFile}`);
+    }
+
+    console.log(`Building XMLTV for ${runtimeConfig.listings.length} listing(s)`);
+
+    for (const listing of runtimeConfig.listings) {
+      const label = listing.name || listing.lineupId;
+      console.log(`Processing listing: ${label}`);
+      console.log(
+        `Config: Country=${listing.country}, PostalCode=${listing.postalCode}, OutputFile=${listing.outputFile}`,
+      );
+
+      console.log("Fetching TV listings...");
+      const data = await getTVListings(listing);
+      console.log(`Successfully fetched ${data.channels.length} channels`);
+
+      console.log("Building XMLTV content...");
+      const xml = buildXmltv(data, listing);
+
+      console.log(`Writing XMLTV to ${listing.outputFile}...`);
+      writeFileSync(listing.outputFile, xml, { encoding: "utf-8" });
+      console.log(`XMLTV file created successfully for ${label}!`);
+    }
   } catch (err) {
     console.error("Error fetching or building XMLTV:", err);
     process.exit(1);

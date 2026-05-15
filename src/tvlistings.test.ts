@@ -1,10 +1,29 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { ListingConfig } from "./config.js";
 import type { GridApiResponse } from "./tvlistings.js";
 import { getTVListings } from "./tvlistings.js";
 
 // Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
+
+const mockConfig: ListingConfig = {
+  baseUrl: "https://tvlistings.gracenote.com/api/grid",
+  lineupId: "USA-GA42500-X",
+  headendId: "GA42500",
+  timespan: "6",
+  country: "USA",
+  postalCode: "30309",
+  pref: "",
+  timezone: "America/New_York",
+  userAgent: "UnitTestAgent/1.0",
+  outputFile: "xmltv.xml",
+  appendAsterisk: false,
+  mediaportal: false,
+  nextpvr: false,
+  stationid: false,
+  sortname: false,
+};
 
 const mockGridApiResponse: GridApiResponse = {
   channels: [
@@ -67,7 +86,7 @@ describe("getTVListings", () => {
       json: async () => mockGridApiResponse,
     });
 
-    const result = await getTVListings();
+    const result = await getTVListings(mockConfig);
 
     expect(result).toEqual(mockGridApiResponse);
     expect(result.channels).toHaveLength(1);
@@ -80,7 +99,7 @@ describe("getTVListings", () => {
       json: async () => mockGridApiResponse,
     });
 
-    await getTVListings();
+    await getTVListings(mockConfig);
 
     const callArgs = mockFetch.mock.calls[0];
     const headers = callArgs[1].headers;
@@ -105,7 +124,7 @@ describe("getTVListings", () => {
       json: async () => mockGridApiResponse,
     });
 
-    await getTVListings();
+    await getTVListings(mockConfig);
 
     const callArgs = mockFetch.mock.calls[0];
     const userAgent = callArgs[1].headers["User-Agent"];
@@ -119,7 +138,7 @@ describe("getTVListings", () => {
       statusText: "Not Found",
     });
 
-    await expect(getTVListings()).rejects.toThrow(
+    await expect(getTVListings(mockConfig)).rejects.toThrow(
       "Failed to fetch: 404 Not Found",
     );
   });
@@ -131,7 +150,7 @@ describe("getTVListings", () => {
       statusText: "Internal Server Error",
     });
 
-    await expect(getTVListings()).rejects.toThrow(
+    await expect(getTVListings(mockConfig)).rejects.toThrow(
       "Failed to fetch: 500 Internal Server Error",
     );
   });
@@ -143,7 +162,7 @@ describe("getTVListings", () => {
       statusText: "Moved Permanently",
     });
 
-    await expect(getTVListings()).rejects.toThrow(
+    await expect(getTVListings(mockConfig)).rejects.toThrow(
       "Failed to fetch: 301 Moved Permanently",
     );
   });
@@ -158,7 +177,7 @@ describe("getTVListings", () => {
       json: async () => emptyResponse,
     });
 
-    const result = await getTVListings();
+    const result = await getTVListings(mockConfig);
     expect(result).toEqual(emptyResponse);
     expect(result.channels).toHaveLength(0);
   });
@@ -198,7 +217,7 @@ describe("getTVListings", () => {
       json: async () => multiChannelResponse,
     });
 
-    const result = await getTVListings();
+    const result = await getTVListings(mockConfig);
     expect(result.channels).toHaveLength(2);
     expect(result.channels[0].callSign).toBe("KOMODT");
     expect(result.channels[1].callSign).toBe("KOMODT2");
@@ -208,7 +227,7 @@ describe("getTVListings", () => {
     const networkError = new Error("Network error");
     mockFetch.mockRejectedValueOnce(networkError);
 
-    await expect(getTVListings()).rejects.toThrow("Network error");
+    await expect(getTVListings(mockConfig)).rejects.toThrow("Network error");
   });
 
   it("should handle JSON parsing errors", async () => {
@@ -219,7 +238,7 @@ describe("getTVListings", () => {
       },
     });
 
-    await expect(getTVListings()).rejects.toThrow("Invalid JSON");
+    await expect(getTVListings(mockConfig)).rejects.toThrow("Invalid JSON");
   });
 
   it("should handle malformed JSON response", async () => {
@@ -230,7 +249,7 @@ describe("getTVListings", () => {
       },
     });
 
-    await expect(getTVListings()).rejects.toThrow(
+    await expect(getTVListings(mockConfig)).rejects.toThrow(
       "Unexpected token < in JSON at position 0",
     );
   });
