@@ -53,12 +53,41 @@ const mockData: GridApiResponse = {
   ],
 };
 
+const orderedChannelsData: GridApiResponse = {
+  channels: [
+    {
+      callSign: "ZZZ",
+      affiliateName: "Zulu",
+      affiliateCallSign: null,
+      channelId: "200",
+      channelNo: "2",
+      events: [],
+      id: "2000",
+      stationGenres: [],
+      stationFilters: [],
+      thumbnail: "",
+    },
+    {
+      callSign: "AAA",
+      affiliateName: "Alpha",
+      affiliateCallSign: null,
+      channelId: "100",
+      channelNo: "10",
+      events: [],
+      id: "1000",
+      stationGenres: [],
+      stationFilters: [],
+      thumbnail: "",
+    },
+  ],
+};
+
 describe("buildXmltv", () => {
   it("should generate valid XML structure", () => {
     const result = buildXmltv(mockData);
     expect(result).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(result).toContain(
-      '<tv generator-info-name="jef/zap2xml" generator-info-url="https://github.com/jef/zap2xml">',
+      '<tv generator-info-name="jcbird1012/zap2xml" generator-info-url="https://github.com/jcbird1012/zap2xml">',
     );
     expect(result).toContain("</tv>");
   });
@@ -92,20 +121,25 @@ describe("buildXmltv", () => {
     );
   });
 
-  it("should include categories from flags and tags", () => {
+  it("should include flags and tag-derived output", () => {
     const result = buildXmltv(mockData);
     expect(result).toContain("<new />");
     expect(result).toContain('<audio type="stereo" />');
-    expect(result).toContain('<audio type="cc" />');
+    expect(result).toContain('<subtitles type="teletext" />');
   });
 
   it("should include episode information", () => {
     const result = buildXmltv(mockData);
-    expect(result).toContain('<episode-num system="season">5</episode-num>');
-    expect(result).toContain('<episode-num system="episode">217</episode-num>');
-    expect(result).toContain(
-      '<episode-num system="series">SH05918266</episode-num>',
-    );
+    expect(result).toContain('<episode-num system="dd_progid">EP05918266.0025</episode-num>');
+    expect(result).toContain('<episode-num system="onscreen">S05E217</episode-num>');
+    expect(result).toContain('<episode-num system="common">S05E217</episode-num>');
+    expect(result).toContain('<episode-num system="xmltv_ns">4.216.</episode-num>');
+  });
+
+  it("should pass appendAsterisk overrides through buildXmltv", () => {
+    const result = buildXmltv(mockData, { appendAsterisk: true });
+
+    expect(result).toContain("<title>GMA3 *</title>");
   });
 
   it("should handle empty data gracefully", () => {
@@ -113,7 +147,7 @@ describe("buildXmltv", () => {
     const result = buildXmltv(emptyData);
     expect(result).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(result).toContain(
-      '<tv generator-info-name="jef/zap2xml" generator-info-url="https://github.com/jef/zap2xml">',
+      '<tv generator-info-name="jcbird1012/zap2xml" generator-info-url="https://github.com/jcbird1012/zap2xml">',
     );
     expect(result).toContain("</tv>");
     expect(result).not.toContain("<channel");
@@ -174,7 +208,7 @@ describe("buildXmltv", () => {
     expect(result).not.toContain("<desc>");
     expect(result).not.toContain("<rating>");
     expect(result).not.toContain("<category>");
-    expect(result).not.toContain("<episode-num");
+    expect(result).toContain('<episode-num system="xmltv_ns">2024.0717.</episode-num>');
     expect(result).not.toContain("<icon");
   });
 });
@@ -230,8 +264,28 @@ describe("buildChannelsXml", () => {
     );
     expect(result).toContain("<display-name>4.1</display-name>");
     expect(result).toContain(
-      '<icon src="https://zap2it.tmsimg.com/h3/NowShowing/19629/s28708_ll_h15_ac.png?w=55" />',
+      '<icon src="https://emby.tmsimg.com/h3/NowShowing/19629/s28708_ll_h15_ac.png" />',
     );
+  });
+
+  it("should put channel number first when nextpvr is enabled", () => {
+    const result = buildChannelsXml(mockData, { nextpvr: true });
+
+    expect(result.indexOf("<display-name>4.1 KOMODT</display-name>")).toBeLessThan(
+      result.indexOf("<display-name>KOMODT</display-name>"),
+    );
+  });
+
+  it("should sort channels by call sign when sortname is enabled", () => {
+    const result = buildChannelsXml(orderedChannelsData, { sortname: true });
+
+    expect(result.indexOf('<channel id="100">')).toBeLessThan(result.indexOf('<channel id="200">'));
+  });
+
+  it("should sort channels by channel ID when stationid is enabled", () => {
+    const result = buildChannelsXml(orderedChannelsData, { stationid: true });
+
+    expect(result.indexOf('<channel id="100">')).toBeLessThan(result.indexOf('<channel id="200">'));
   });
 
   it("should handle channels without optional fields", () => {
@@ -274,14 +328,23 @@ describe("buildProgramsXml", () => {
     );
     expect(result).toContain("<new />");
     expect(result).toContain('<audio type="stereo" />');
-    expect(result).toContain('<audio type="cc" />');
-    expect(result).toContain('<episode-num system="season">5</episode-num>');
-    expect(result).toContain('<episode-num system="episode">217</episode-num>');
+    expect(result).toContain('<subtitles type="teletext" />');
+    expect(result).toContain('<episode-num system="dd_progid">EP05918266.0025</episode-num>');
+    expect(result).toContain('<episode-num system="onscreen">S05E217</episode-num>');
+    expect(result).toContain('<episode-num system="common">S05E217</episode-num>');
     expect(result).toContain(
-      '<episode-num system="series">SH05918266</episode-num>',
+      '<episode-num system="xmltv_ns">4.216.</episode-num>',
     );
     expect(result).toContain(
-      '<icon src="https://zap2it.tmsimg.com/assets/p30687311_b_v13_aa.jpg" />',
+      '<icon src="https://emby.tmsimg.com/assets/p30687311_b_v13_aa.jpg" />',
+    );
+  });
+
+  it("should place xmltv_ns first when mediaportal is enabled", () => {
+    const result = buildProgramsXml(mockData, { mediaportal: true });
+
+    expect(result.indexOf('<episode-num system="xmltv_ns">4.216.</episode-num>')).toBeLessThan(
+      result.indexOf('<episode-num system="dd_progid">EP05918266.0025</episode-num>'),
     );
   });
 
@@ -337,7 +400,7 @@ describe("buildProgramsXml", () => {
     expect(result).not.toContain("<desc>");
     expect(result).not.toContain("<rating>");
     expect(result).not.toContain("<category>");
-    expect(result).not.toContain("<episode-num");
+    expect(result).toContain('<episode-num system="xmltv_ns">2024.0717.</episode-num>');
     expect(result).not.toContain("<icon");
   });
 });
