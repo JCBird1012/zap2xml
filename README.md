@@ -65,4 +65,4 @@ Use `--config=path/to/listings.yml` to fetch multiple TV lineups in a single run
 ### Changes in this fork from jessman's [fork](https://github.com/jesmannstl/zap2xml)
 
 * Docker image uses [Bun](https://bun.com) runtime instead of Node.js - smaller image, and probably some (likely unnoticeable with typical use) performance/memory usage improvements!
-* Ability to fetch multiple lineups using a single `zap2xml` instance - no longer have to run multiple containers to fetch multiple lineups! (see )
+* Ability to fetch multiple lineups using a single `zap2xml` instance - no longer have to run multiple containers to fetch multiple lineups! (see [Multi-Listing Config](https://github.com/JCBird1012/zap2xml/wiki/Multi-Listing-Config))

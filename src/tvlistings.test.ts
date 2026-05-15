@@ -88,9 +88,9 @@ describe("getTVListings", () => {
 
     const result = await getTVListings(mockConfig);
 
-    expect(result).toEqual(mockGridApiResponse);
     expect(result.channels).toHaveLength(1);
     expect(result.channels[0].callSign).toBe("KOMODT");
+    expect(result.channels[0].events[0].program.genres).toEqual(["news"]);
   });
 
   it("should include a User-Agent header in the request", async () => {
@@ -108,17 +108,7 @@ describe("getTVListings", () => {
     expect(headers["User-Agent"].length).toBeGreaterThan(0);
   });
 
-  it("should use a random User-Agent from the predefined list", async () => {
-    const expectedUserAgents = [
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0",
-      "Mozilla/5.0 (Linux; Android 13; SM-G991U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
-      "Mozilla/5.0 (iPad; CPU OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
-    ];
-
+  it("should use the configured User-Agent", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => mockGridApiResponse,
@@ -128,7 +118,7 @@ describe("getTVListings", () => {
 
     const callArgs = mockFetch.mock.calls[0];
     const userAgent = callArgs[1].headers["User-Agent"];
-    expect(expectedUserAgents).toContain(userAgent);
+    expect(userAgent).toBe(mockConfig.userAgent);
   });
 
   it("should throw an error when response is not ok (4xx status)", async () => {
@@ -136,10 +126,11 @@ describe("getTVListings", () => {
       ok: false,
       status: 404,
       statusText: "Not Found",
+      text: async () => "Requested lineup was not found",
     });
 
     await expect(getTVListings(mockConfig)).rejects.toThrow(
-      "Failed to fetch: 404 Not Found",
+      /Failed to fetch URL .*: 404 Not Found - Requested lineup was not found\.\.\./,
     );
   });
 
@@ -148,10 +139,11 @@ describe("getTVListings", () => {
       ok: false,
       status: 500,
       statusText: "Internal Server Error",
+      text: async () => "Upstream service failed",
     });
 
     await expect(getTVListings(mockConfig)).rejects.toThrow(
-      "Failed to fetch: 500 Internal Server Error",
+      /Failed to fetch URL .*: 500 Internal Server Error - Upstream service failed\.\.\./,
     );
   });
 
@@ -160,10 +152,11 @@ describe("getTVListings", () => {
       ok: false,
       status: 301,
       statusText: "Moved Permanently",
+      text: async () => "Redirects are not followed here",
     });
 
     await expect(getTVListings(mockConfig)).rejects.toThrow(
-      "Failed to fetch: 301 Moved Permanently",
+      /Failed to fetch URL .*: 301 Moved Permanently - Redirects are not followed here\.\.\./,
     );
   });
 

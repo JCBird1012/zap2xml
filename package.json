@@ -41,7 +41,6 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "commander": "^11.1.0",
     "valibot": "^1.4.0",
     "yaml": "^2.9.0"
   }

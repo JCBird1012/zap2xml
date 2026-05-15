@@ -88,16 +88,16 @@ function toDdProgid(rawId: string | undefined | null): string | null {
   return m ? `${m[1]}.${m[2]}` : null;
 }
 
-// TF 10/2025 Impement an internal deepStrictEqual function to compare to objects.
+// TF 10/2025 Implement an internal deepStrictEqual function to compare to objects.
 // Helper to compare two objects.
 
 function isIdentical(obj1: Event, obj2: Event): boolean {
   try {
     assert.deepStrictEqual(obj1, obj2);
   } catch {
-    return false
+    return false;
   }
-  return true
+  return true;
 }
 
 export function buildChannelsXml(data: GridApiResponse, optionOverrides: Partial<XmltvOptions> = {}): string {
