@@ -87,7 +87,7 @@ describe("buildXmltv", () => {
     const result = buildXmltv(mockData);
     expect(result).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(result).toContain(
-      '<tv generator-info-name="jef/zap2xml" generator-info-url="https://github.com/jef/zap2xml">',
+      '<tv generator-info-name="jcbird1012/zap2xml" generator-info-url="https://github.com/jcbird1012/zap2xml">',
     );
     expect(result).toContain("</tv>");
   });
@@ -147,7 +147,7 @@ describe("buildXmltv", () => {
     const result = buildXmltv(emptyData);
     expect(result).toContain('<?xml version="1.0" encoding="UTF-8"?>');
     expect(result).toContain(
-      '<tv generator-info-name="jef/zap2xml" generator-info-url="https://github.com/jef/zap2xml">',
+      '<tv generator-info-name="jcbird1012/zap2xml" generator-info-url="https://github.com/jcbird1012/zap2xml">',
     );
     expect(result).toContain("</tv>");
     expect(result).not.toContain("<channel");

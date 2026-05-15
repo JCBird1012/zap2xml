@@ -365,7 +365,7 @@ export function buildXmltv(data: GridApiResponse, optionOverrides: Partial<Xmltv
   console.log("Building XMLTV file");
 
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  xml += '<tv generator-info-name="jef/zap2xml" generator-info-url="https://github.com/jef/zap2xml">\n';
+  xml += '<tv generator-info-name="jcbird1012/zap2xml" generator-info-url="https://github.com/jcbird1012/zap2xml">\n';
   xml += buildChannelsXml(data, optionOverrides);
   xml += buildProgramsXml(data, optionOverrides);
   xml += "</tv>\n";
