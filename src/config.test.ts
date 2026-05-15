@@ -22,7 +22,7 @@ const trackedEnvVars = [
   "USER_AGENT",
 ];
 
-let tempDirs: string[] = [];
+const tempDirs: string[] = [];
 
 function clearEnv(): void {
   for (const key of trackedEnvVars) {
