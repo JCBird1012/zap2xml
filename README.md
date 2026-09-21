@@ -16,6 +16,37 @@ Need help? See [Finding a lineup](https://github.com/JCBird1012/zap2xml/wiki/Fin
 
 Use `--config=path/to/listings.yml` to fetch multiple TV lineups in a single run. See the [Multi-Listing Config](https://github.com/JCBird1012/zap2xml/wiki/Multi-Listing-Config) wiki page for the full YAML format, precedence rules, and Docker setup.
 
+## Merging listings into one file
+
+Add `--merge` to also write every listing combined into a single XMLTV file. Channels are deduplicated by channel ID, and programmes by channel and start time, so stations carried by more than one lineup appear once.
+
+```yaml
+listings:
+  - name: dtv
+    lineupId: USA-DITV751-X
+    postalCode: "80020"
+    outputFile: dtv.xml
+  - name: ota
+    lineupId: USA-OTA80020
+    postalCode: "80020"
+    outputFile: ota.xml
+
+merge:
+  enabled: true
+  outputFile: merged.xml
+  keepIndividual: true
+  dedupe: first
+```
+
+| Option | Env | Description |
+| --- | --- | --- |
+| `--merge` | `MERGE` | Write all listings combined into one file |
+| `--mergeOutputFile=FILE` | `MERGE_OUTPUT_FILE` | Merged file name (implies `--merge`, default `merged.xml`) |
+| `--mergeDedupe=MODE` | `MERGE_DEDUPE` | Which duplicate to keep: `first` (default) or `last` |
+| `--noKeepIndividual` | `MERGE_KEEP_INDIVIDUAL=false` | Only write the merged file, skipping per-listing files |
+
+By default the per-listing files are still written alongside the merged one. This works in single-listing mode too, though with one listing the merged file is just a copy.
+
 ## Recent Updates
 
 ### (2025-08-20)
@@ -66,3 +97,4 @@ Use `--config=path/to/listings.yml` to fetch multiple TV lineups in a single run
 
 * Docker image uses [Bun](https://bun.com) runtime instead of Node.js - smaller image, and probably some (likely unnoticeable with typical use) performance/memory usage improvements!
 * Ability to fetch multiple lineups using a single `zap2xml` instance - no longer have to run multiple containers to fetch multiple lineups! (see [Multi-Listing Config](https://github.com/JCBird1012/zap2xml/wiki/Multi-Listing-Config))
+* `--merge` combines all listings into one deduplicated XMLTV file, so you don't need a separate merge step for multi-lineup setups

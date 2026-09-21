@@ -21,6 +21,8 @@
     "dev": "bun src/index.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{ts,mts,cts,js,mjs,cjs}\"",
+    "format:check": "prettier --check \"**/*.{ts,mts,cts,js,mjs,cjs}\"",
     "typecheck": "tsc --noEmit",
     "build": "bun run typecheck && rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript"
   },
