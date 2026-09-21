@@ -35,6 +35,12 @@ jobs:
       - name: Lint
         run: bun run lint
 
+      - name: Check formatting
+        run: bun run format:check
+
+      - name: Unit tests
+        run: bun run test:run
+
       - name: Integration tests
         run: |
           bun dist/index.js --lineupId=USA-DITV751-X --timespan=3 --postalCode=80020 --outputFile=dtv.xml
@@ -44,4 +50,65 @@ jobs:
           if cmp -s dtv.xml ota.xml; then
             echo "DTV and OTA outputs are the same, which is unexpected."
             exit 1
+          fi
+
+      - name: Merge integration test
+        run: |
+          cat > ci-listings.yml <<'YAML'
+          defaults:
+            timespan: 3
+            country: USA
+            postalCode: "80020"
+          listings:
+            - name: dtv
+              lineupId: USA-DITV751-X
+              outputFile: merge-dtv.xml
+            - name: ota
+              lineupId: USA-OTA80020
+              outputFile: merge-ota.xml
+          merge:
+            enabled: true
+            outputFile: merged.xml
+          YAML
+
+          bun dist/index.js --config=ci-listings.yml
+
+          for f in merge-dtv.xml merge-ota.xml merged.xml; do
+            if [ ! -s "$f" ]; then
+              echo "Expected $f to be written and non-empty."
+              exit 1
+            fi
+          done
+
+          # The merged file must hold at least as many channels as either input.
+          dtv=$(grep -c '<channel id=' merge-dtv.xml)
+          ota=$(grep -c '<channel id=' merge-ota.xml)
+          merged=$(grep -c '<channel id=' merged.xml)
+          echo "channels: dtv=$dtv ota=$ota merged=$merged"
+
+          if [ "$merged" -lt "$dtv" ] || [ "$merged" -lt "$ota" ]; then
+            echo "Merged output has fewer channels than an input file."
+            exit 1
+          fi
+
+          # Channel IDs must be unique after merging.
+          dupes=$(grep -o '<channel id="[^"]*"' merged.xml | sort | uniq -d | wc -l)
+          if [ "$dupes" -ne 0 ]; then
+            echo "Merged output contains $dupes duplicate channel id(s)."
+            exit 1
+          fi
+
+          # Programmes must be unique per channel/start pair.
+          progdupes=$(grep -o '<programme start="[^"]*" stop="[^"]*" channel="[^"]*"' merged.xml \
+            | sed -E 's/.*start="([^"]*)".*channel="([^"]*)"/\2|\1/' | sort | uniq -d | wc -l)
+          if [ "$progdupes" -ne 0 ]; then
+            echo "Merged output contains $progdupes duplicate channel/start programme(s)."
+            exit 1
+          fi
+
+          # Output must be well-formed XML.
+          if command -v xmllint >/dev/null 2>&1; then
+            xmllint --noout merged.xml
+          else
+            echo "xmllint unavailable; skipping well-formedness check."
           fi
