@@ -1,49 +1,49 @@
 {
-  "name": "@jcbird1012/zap2xml",
-  "version": "2.4.0",
-  "description": "JavaScript implementation of zap2xml",
-  "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+    "name": "@jcbird1012/zap2xml",
+    "version": "2.5.0",
+    "description": "JavaScript implementation of zap2xml",
+    "type": "module",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "engines": {
+        "bun": ">=1.0"
+    },
+    "scripts": {
+        "test": "vitest",
+        "test:run": "vitest run",
+        "dev": "bun src/index.ts",
+        "lint": "eslint .",
+        "lint:fix": "eslint . --fix",
+        "format": "prettier --write \"**/*.{ts,mts,cts,js,mjs,cjs}\"",
+        "format:check": "prettier --check \"**/*.{ts,mts,cts,js,mjs,cjs}\"",
+        "typecheck": "tsc --noEmit",
+        "build": "bun run typecheck && rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.31.0",
+        "@rollup/plugin-commonjs": "^28.0.6",
+        "@rollup/plugin-node-resolve": "^16.0.1",
+        "@rollup/plugin-typescript": "^12.1.4",
+        "@types/bun": "latest",
+        "eslint": "^9.31.0",
+        "eslint-config-prettier": "^10.1.8",
+        "globals": "^16.3.0",
+        "prettier": "^3.6.2",
+        "rollup": "^4.45.1",
+        "tslib": "^2.8.1",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.37.0",
+        "vitest": "^3.2.4"
+    },
+    "dependencies": {
+        "valibot": "^1.4.0",
+        "yaml": "^2.9.0"
     }
-  },
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "bun": ">=1.0"
-  },
-  "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run",
-    "dev": "bun src/index.ts",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"**/*.{ts,mts,cts,js,mjs,cjs}\"",
-    "format:check": "prettier --check \"**/*.{ts,mts,cts,js,mjs,cjs}\"",
-    "typecheck": "tsc --noEmit",
-    "build": "bun run typecheck && rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.31.0",
-    "@rollup/plugin-commonjs": "^28.0.6",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.4",
-    "@types/bun": "latest",
-    "eslint": "^9.31.0",
-    "eslint-config-prettier": "^10.1.8",
-    "globals": "^16.3.0",
-    "prettier": "^3.6.2",
-    "rollup": "^4.45.1",
-    "tslib": "^2.8.1",
-    "typescript": "^5.8.3",
-    "typescript-eslint": "^8.37.0",
-    "vitest": "^3.2.4"
-  },
-  "dependencies": {
-    "valibot": "^1.4.0",
-    "yaml": "^2.9.0"
-  }
 }
