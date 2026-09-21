@@ -181,6 +181,38 @@ describe("mergeListings", () => {
         expect(channel.thumbnail).toBe("//example.com/logo.png");
     });
 
+    it("treats empty-string metadata as missing so it is still inherited", () => {
+        const result = mergeListings([
+            listing("a", [
+                makeChannel({
+                    channelId: "1",
+                    callSign: "",
+                    channelNo: "",
+                    affiliateName: "",
+                    affiliateCallSign: "",
+                    thumbnail: "",
+                }),
+            ]),
+            listing("b", [
+                makeChannel({
+                    channelId: "1",
+                    callSign: "WXYZ",
+                    channelNo: "4.1",
+                    affiliateName: "ABC",
+                    affiliateCallSign: "WXYZ-TV",
+                    thumbnail: "//example.com/logo.png",
+                }),
+            ]),
+        ]);
+
+        const channel = result.data.channels[0]!;
+        expect(channel.callSign).toBe("WXYZ");
+        expect(channel.channelNo).toBe("4.1");
+        expect(channel.affiliateName).toBe("ABC");
+        expect(channel.affiliateCallSign).toBe("WXYZ-TV");
+        expect(channel.thumbnail).toBe("//example.com/logo.png");
+    });
+
     it("does not let a later listing overwrite existing channel metadata", () => {
         const result = mergeListings([
             listing("a", [makeChannel({ channelId: "1", channelNo: "4.1", affiliateName: "ABC" })]),
