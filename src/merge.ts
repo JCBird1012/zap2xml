@@ -45,15 +45,22 @@ export function programmeKey(event: Event): string {
  * describe the same station with varying completeness (a channelNo in one
  * feed, an affiliateName in another), so we keep the richer fields rather
  * than blindly taking the first or last.
+ *
+ * These use `||` rather than `??` because the rest of the codebase treats an
+ * empty string as absent for these fields (`buildChannelsXml` guards each with
+ * a truthiness check, and `channelComparator` normalizes channelNo via
+ * `(a.channelNo || "").trim()`). A feed that reports "" instead of null must
+ * still inherit the real value, otherwise the merged channel would silently
+ * lose its number, affiliate name, or icon.
  */
 function mergeChannelMetadata(existing: Channel, incoming: Channel): Channel {
     return {
         ...existing,
         callSign: existing.callSign || incoming.callSign,
-        affiliateName: existing.affiliateName ?? incoming.affiliateName,
-        affiliateCallSign: existing.affiliateCallSign ?? incoming.affiliateCallSign,
-        channelNo: existing.channelNo ?? incoming.channelNo,
-        thumbnail: existing.thumbnail ?? incoming.thumbnail,
+        affiliateName: existing.affiliateName || incoming.affiliateName,
+        affiliateCallSign: existing.affiliateCallSign || incoming.affiliateCallSign,
+        channelNo: existing.channelNo || incoming.channelNo,
+        thumbnail: existing.thumbnail || incoming.thumbnail,
         stationGenres: existing.stationGenres?.length ? existing.stationGenres : incoming.stationGenres,
         stationFilters: existing.stationFilters?.length ? existing.stationFilters : incoming.stationFilters,
     };
