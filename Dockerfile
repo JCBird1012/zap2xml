@@ -1,4 +1,10 @@
-FROM oven/bun:alpine AS builder
+# syntax=docker/dockerfile:1
+
+# The build output (dist/) is plain JavaScript and platform-independent, so
+# always run the builder on the build host's native platform. This keeps
+# cross-platform builds (e.g. `--platform linux/arm64` on an amd64 machine)
+# from emulating the bun install/build steps.
+FROM --platform=$BUILDPLATFORM oven/bun:alpine AS builder
 
 WORKDIR /app
 
@@ -16,7 +22,6 @@ FROM oven/bun:alpine
 WORKDIR /app
 
 COPY --from=builder /app/dist/ dist/
-COPY entrypoint.sh ./
-RUN chmod +x /app/entrypoint.sh
+COPY --chmod=755 entrypoint.sh ./
 
 ENTRYPOINT ["/app/entrypoint.sh"]

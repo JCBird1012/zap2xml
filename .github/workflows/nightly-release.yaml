@@ -6,9 +6,11 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  nightly-release:
-    name: Nightly Build and Release Docker image (if code changed in 24h)
+  check:
+    name: Check if code changed in 24h
     runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.code-change.outputs.should-run }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -22,19 +24,15 @@ jobs:
             echo "should-run=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Login into GitHub Container Registry
-        if: steps.code-change.outputs.should-run == 'true'
-        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
-
-      - name: Build Docker image
-        if: steps.code-change.outputs.should-run == 'true'
-        run: |
-          docker build \
-          -t "ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_SHA:0:7}" \
-          -t "ghcr.io/${GITHUB_REPOSITORY}:latest" .
-
-      - name: Release Docker image
-        if: steps.code-change.outputs.should-run == 'true'
-        run: |
-          docker push "ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_SHA:0:7}"
-          docker push "ghcr.io/${GITHUB_REPOSITORY}:latest"
+  docker:
+    name: Nightly Build and Release Docker image
+    needs: check
+    if: needs.check.outputs.should-run == 'true'
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/docker-publish.yaml
+    with:
+      tags: |
+        type=sha,prefix=,format=short
+        type=raw,value=latest
