@@ -1,6 +1,6 @@
 {
     "name": "@jcbird1012/zap2xml",
-    "version": "2.5.0",
+    "version": "2.5.1",
     "description": "JavaScript implementation of zap2xml",
     "type": "module",
     "exports": {
