@@ -12,9 +12,6 @@ on:
         required: true
         type: string
 
-env:
-  REGISTRY_IMAGE: ghcr.io/${{ github.repository }}
-
 jobs:
   build:
     name: Build (${{ matrix.platform }})
@@ -35,6 +32,8 @@ jobs:
         run: |
           platform=${{ matrix.platform }}
           echo "PLATFORM_PAIR=${platform//\//-}" >> "$GITHUB_ENV"
+          # Image references must be lowercase; the repo owner is not.
+          echo "REGISTRY_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -86,6 +85,10 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Prepare
+        # Image references must be lowercase; the repo owner is not.
+        run: echo "REGISTRY_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
       - name: Download digests
         uses: actions/download-artifact@v6
         with:
