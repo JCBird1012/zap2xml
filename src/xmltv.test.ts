@@ -312,7 +312,7 @@ describe("buildProgramsXml", () => {
         expect(result).toContain('<episode-num system="onscreen">S05E217</episode-num>');
         expect(result).toContain('<episode-num system="common">S05E217</episode-num>');
         expect(result).toContain('<episode-num system="xmltv_ns">4.216.</episode-num>');
-        expect(result).toContain('<icon src="https://emby.tmsimg.com/assets/p30687311_b_v13_aa.jpg" />');
+        expect(result).toContain('<icon src="https://ebyl.tmsimg.com/assets/p30687311_b_v13_aa.jpg" />');
     });
 
     it("should place xmltv_ns first when mediaportal is enabled", () => {

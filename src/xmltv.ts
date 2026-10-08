@@ -238,7 +238,7 @@ export function buildProgramsXml(data: GridApiResponse, optionOverrides: Partial
             if (event.thumbnail) {
                 const src = event.thumbnail.startsWith("http")
                     ? event.thumbnail
-                    : "https://emby.tmsimg.com/assets/" + event.thumbnail + ".jpg";
+                    : "https://ebyl.tmsimg.com/assets/" + event.thumbnail + ".jpg";
                 xml += `    <icon src="${escapeXml(src)}" />\n`;
             }
 
